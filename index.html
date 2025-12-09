@@ -496,6 +496,36 @@
             color: #333;
         }
         
+        .hotel-result {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .hotel-result-info {
+            flex: 1;
+        }
+        
+        .hotel-result-name {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .hotel-result-total {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+        }
+        
         .day-total {
             text-align: right;
             font-size: 1.3em;
@@ -568,6 +598,12 @@
             .room-result-pricing {
                 text-align: left;
                 width: 100%;
+            }
+            
+            .hotel-result {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
             }
             
             .total-breakdown {
@@ -1042,6 +1078,19 @@
             if (daysWithSelections.length === 0) return;
             
             let eventSpacesTotal = 0;
+            const needsRoomBlock = document.querySelector('input[name="roomBlock"]:checked').value === 'yes';
+            const adr = parseFloat(document.getElementById('adrInput').value) || 0;
+            
+            // Get room block data by date
+            const roomBlockData = {};
+            if (needsRoomBlock) {
+                const matrixInputs = document.querySelectorAll('.matrix-input');
+                matrixInputs.forEach(input => {
+                    const date = input.dataset.date;
+                    const rooms = parseInt(input.value) || 0;
+                    roomBlockData[date] = rooms;
+                });
+            }
             
             const dayResultsHtml = daysWithSelections.map(day => {
                 const dateObj = new Date(day.date + 'T12:00:00');
@@ -1052,14 +1101,14 @@
                     year: 'numeric' 
                 });
                 
-                let dayTotal = 0;
+                let dayEventTotal = 0;
                 const selectedRooms = Object.keys(day.selectedRooms).filter(room => day.selectedRooms[room]);
                 
                 const roomResultsHtml = selectedRooms.map(roomKey => {
                     const [rental, fnb] = pricingData[day.date][roomKey];
                     const attendeeCount = parseInt(day.attendeeCounts[roomKey]) || 0;
                     const roomTotal = rental + fnb;
-                    dayTotal += roomTotal;
+                    dayEventTotal += roomTotal;
                     
                     const perPersonText = attendeeCount > 0 ? `($${Math.round(fnb / attendeeCount)} per person)` : '';
                     const attendeeText = attendeeCount > 0 ? `${attendeeCount} attendees` : 'Attendee count not specified';
@@ -1067,7 +1116,7 @@
                     return `
                         <div class="room-result">
                             <div class="room-result-info">
-                                <div class="room-result-name">${roomNames[roomKey]}</div>
+                                <div class="room-result-name">🏛️ ${roomNames[roomKey]}</div>
                                 <div class="room-result-details">${attendeeText}</div>
                             </div>
                             <div class="room-result-pricing">
@@ -1078,12 +1127,29 @@
                     `;
                 }).join('');
                 
-                eventSpacesTotal += dayTotal;
+                // Add hotel room block for this day if applicable
+                let hotelResultHtml = '';
+                let dayHotelTotal = 0;
+                if (needsRoomBlock && roomBlockData[day.date] > 0) {
+                    dayHotelTotal = roomBlockData[day.date] * adr;
+                    hotelResultHtml = `
+                        <div class="hotel-result">
+                            <div class="hotel-result-info">
+                                <div class="hotel-result-name">🏨 Hotel Rooms</div>
+                            </div>
+                            <div class="hotel-result-total">${roomBlockData[day.date]} rooms × ${formatCurrency(adr)} = ${formatCurrency(dayHotelTotal)}</div>
+                        </div>
+                    `;
+                }
+                
+                eventSpacesTotal += dayEventTotal;
+                const dayTotal = dayEventTotal + dayHotelTotal;
                 
                 return `
                     <div class="day-result">
                         <div class="day-result-header">${formattedDate}</div>
                         ${roomResultsHtml}
+                        ${hotelResultHtml}
                         <div class="day-total">Day Total: ${formatCurrency(dayTotal)}</div>
                     </div>
                 `;
@@ -1092,29 +1158,23 @@
             document.getElementById('dayResults').innerHTML = dayResultsHtml;
             document.getElementById('eventTotal').textContent = formatCurrency(eventSpacesTotal);
             
-            // Calculate room block total if needed
-            let roomBlockTotal = 0;
-            const needsRoomBlock = document.querySelector('input[name="roomBlock"]:checked').value === 'yes';
-            
+            // Calculate total room block amount
+            let totalRoomBlockAmount = 0;
             if (needsRoomBlock) {
-                const adr = parseFloat(document.getElementById('adrInput').value) || 0;
-                const matrixInputs = document.querySelectorAll('.matrix-input');
                 let totalRoomNights = 0;
-                
-                matrixInputs.forEach(input => {
-                    totalRoomNights += parseInt(input.value) || 0;
+                Object.values(roomBlockData).forEach(rooms => {
+                    totalRoomNights += rooms;
                 });
-                
-                roomBlockTotal = totalRoomNights * adr;
+                totalRoomBlockAmount = totalRoomNights * adr;
                 
                 document.getElementById('roomBlockTotal').style.display = 'flex';
                 document.getElementById('roomBlockAmount').textContent = 
-                    `${totalRoomNights} rooms × ${formatCurrency(adr)} = ${formatCurrency(roomBlockTotal)}`;
+                    `${totalRoomNights} rooms × ${formatCurrency(adr)} = ${formatCurrency(totalRoomBlockAmount)}`;
             } else {
                 document.getElementById('roomBlockTotal').style.display = 'none';
             }
             
-            const grandTotal = eventSpacesTotal + roomBlockTotal;
+            const grandTotal = eventSpacesTotal + totalRoomBlockAmount;
             document.getElementById('grandTotalAmount').textContent = formatCurrency(grandTotal);
             
             // Update results header
