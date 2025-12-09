@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Day Event Space Pricing Calculator</title>
+    <title>Complete Event & Hotel Package Calculator</title>
     <style>
         * {
             margin: 0;
@@ -101,6 +101,24 @@
             transform: translateY(-1px);
         }
         
+        .add-next-btn {
+            padding: 12px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .add-next-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+        
         .event-days {
             display: flex;
             flex-direction: column;
@@ -115,7 +133,7 @@
             transition: all 0.3s ease;
         }
         
-        .event-day.complete {
+        .event-day.has-selections {
             border-color: #4facfe;
             background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
         }
@@ -161,7 +179,7 @@
         
         .room-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
         }
         
@@ -172,7 +190,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             background: white;
-            min-height: 120px;
+            min-height: 140px;
+            position: relative;
         }
         
         .room-card:hover {
@@ -187,10 +206,19 @@
             color: white;
         }
         
+        .room-checkbox {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 20px;
+            height: 20px;
+        }
+        
         .room-name {
             font-weight: 700;
             font-size: 1.1em;
             margin-bottom: 10px;
+            padding-right: 35px;
         }
         
         .pricing-info {
@@ -198,6 +226,7 @@
             flex-direction: column;
             gap: 5px;
             font-size: 0.95em;
+            margin-bottom: 15px;
         }
         
         .pricing-line {
@@ -212,6 +241,139 @@
         
         .pricing-amount {
             font-weight: 700;
+        }
+        
+        .attendee-input {
+            margin-top: 10px;
+            padding: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 0.9em;
+            width: 100%;
+        }
+        
+        .room-card:not(.selected) .attendee-input {
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .attendee-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .room-card:not(.selected) .attendee-input::placeholder {
+            color: #999;
+        }
+        
+        .room-block-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .room-block-question {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+        
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .room-block-matrix {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .room-block-matrix.show {
+            display: block;
+        }
+        
+        .matrix-header {
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .matrix-grid {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .matrix-column {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .matrix-date-header {
+            text-align: center;
+            padding: 10px;
+            background: #4facfe;
+            color: white;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+        }
+        
+        .matrix-day {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .matrix-input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 0 0 8px 8px;
+            text-align: center;
+            font-size: 1.1em;
+            border: 2px solid #e1e5e9;
+        }
+        
+        .adr-input-group {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .adr-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .adr-input {
+            width: 200px;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 1.1em;
         }
         
         .calculate-btn {
@@ -276,66 +438,96 @@
         .day-result {
             padding: 25px;
             border-bottom: 1px solid #e1e5e9;
+        }
+        
+        .day-result:last-child {
+            border-bottom: none;
+        }
+        
+        .day-result-header {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .room-result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .day-result:last-child {
-            border-bottom: none;
-            border-radius: 0 0 15px 15px;
+        .room-result:last-child {
+            margin-bottom: 0;
         }
         
-        .day-result-info {
+        .room-result-info {
             flex: 1;
         }
         
-        .day-result-date {
+        .room-result-name {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: #333;
+        }
+        
+        .room-result-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .room-result-pricing {
+            text-align: right;
+        }
+        
+        .room-result-breakdown {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .room-result-total {
             font-size: 1.2em;
             font-weight: 700;
             color: #333;
         }
         
-        .day-result-room {
-            color: #666;
-            margin-top: 3px;
-        }
-        
-        .day-result-pricing {
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .pricing-breakdown {
-            font-size: 0.9em;
-            color: #666;
-        }
-        
         .day-total {
+            text-align: right;
             font-size: 1.3em;
             font-weight: 700;
             color: #333;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e1e5e9;
         }
         
-        .grand-total {
+        .final-totals {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 25px;
+            padding: 30px;
             text-align: center;
             border-radius: 0 0 15px 15px;
         }
         
-        .grand-total-amount {
-            font-size: 2.5em;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        .total-breakdown {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 1.2em;
         }
         
-        .grand-total-label {
-            opacity: 0.9;
-            margin-top: 5px;
+        .total-breakdown:last-child {
+            margin-bottom: 0;
+            padding-top: 20px;
+            border-top: 2px solid rgba(255,255,255,0.3);
+            font-size: 1.5em;
+            font-weight: 700;
         }
         
         .empty-state {
@@ -358,15 +550,30 @@
                 grid-template-columns: 1fr;
             }
             
-            .day-result {
+            .radio-group {
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
+                gap: 10px;
             }
             
-            .day-result-pricing {
+            .matrix-grid {
+                flex-direction: column;
+            }
+            
+            .room-result {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .room-result-pricing {
                 text-align: left;
                 width: 100%;
+            }
+            
+            .total-breakdown {
+                flex-direction: column;
+                gap: 10px;
+                text-align: left;
             }
         }
     </style>
@@ -374,8 +581,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏨 Multi-Day Event Pricing Calculator</h1>
-            <p>Build your event day by day with different spaces for each date</p>
+            <h1>🏨 Complete Event & Hotel Package Calculator</h1>
+            <p>Build comprehensive event packages with rooms, F&B, and hotel accommodations</p>
         </div>
         
         <div class="form-container">
@@ -389,6 +596,7 @@
                         <input type="date" id="newDateInput" class="date-input" min="2026-01-01" max="2026-12-31" placeholder="Select event date">
                         <button id="addDateBtn" class="add-date-btn">+ Add Event Day</button>
                     </div>
+                    <button id="addNextBtn" class="add-next-btn" style="display: none;">+ Add Next Day</button>
                 </div>
                 
                 <div id="eventDays" class="event-days">
@@ -400,139 +608,153 @@
                 </div>
             </div>
             
+            <div class="section">
+                <div class="section-title">
+                    🏨 Room Block Requirements
+                </div>
+                
+                <div class="room-block-section">
+                    <div class="room-block-question">Do you need hotel room blocks for this event?</div>
+                    
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="roomBlock" value="no" checked>
+                            <span>No, event spaces only</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="roomBlock" value="yes">
+                            <span>Yes, include room blocks</span>
+                        </label>
+                    </div>
+                    
+                    <div id="roomBlockMatrix" class="room-block-matrix">
+                        <div class="matrix-header">Enter room block requirements by date:</div>
+                        <div id="matrixGrid" class="matrix-grid">
+                            <!-- Matrix will be generated here -->
+                        </div>
+                        <div class="adr-input-group">
+                            <div class="adr-label">ADR (Average Daily Rate):</div>
+                            <input type="number" id="adrInput" class="adr-input" placeholder="0" step="0.01">
+                            <span style="margin-left: 10px; color: #666;">per room per night</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <button class="calculate-btn" id="calculateBtn" disabled>
                 Add Event Days to Calculate Total
             </button>
             
             <div class="results" id="results">
                 <div class="results-header">
-                    <div class="results-title" id="resultsTitle">Multi-Day Event Quote</div>
-                    <div class="results-subtitle" id="resultsSubtitle">Complete pricing breakdown</div>
+                    <div class="results-title" id="resultsTitle">Complete Event Package Quote</div>
+                    <div class="results-subtitle" id="resultsSubtitle">Comprehensive pricing breakdown</div>
                 </div>
                 
                 <div class="day-results" id="dayResults">
                     <!-- Day results will be inserted here -->
                 </div>
                 
-                <div class="grand-total">
-                    <div class="grand-total-amount" id="grandTotalAmount">$0</div>
-                    <div class="grand-total-label">Total Event Investment</div>
+                <div class="final-totals">
+                    <div class="total-breakdown">
+                        <span>Event Spaces Total:</span>
+                        <span id="eventTotal">$0</span>
+                    </div>
+                    <div id="roomBlockTotal" class="total-breakdown" style="display: none;">
+                        <span>Room Block Total:</span>
+                        <span id="roomBlockAmount">$0</span>
+                    </div>
+                    <div class="total-breakdown">
+                        <span>TOTAL PACKAGE:</span>
+                        <span id="grandTotalAmount">$0</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Complete pricing data extracted from your spreadsheet with Gallery corrections
-        const pricingData = {
-            "2026-01-01": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-02": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-03": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-04": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-05": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-06": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-07": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-08": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-09": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-10": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-11": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-12": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-13": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-14": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-15": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-16": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-17": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-18": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-19": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-20": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-21": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-22": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-23": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-24": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-25": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-26": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-27": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-28": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-01-29": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-30": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-01-31": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            // February data with Gallery corrections
-            "2026-02-01": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-02": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-03": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-04": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-05": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-06": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-07": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-08": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-09": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-10": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-11": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-12": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-13": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-14": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-15": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-16": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-17": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-18": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-19": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-20": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-21": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-22": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-23": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-24": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-25": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            "2026-02-26": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-27": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            "2026-02-28": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            // March data
-            "2026-03-01": {"dogwood": [4500, 15000], "dogwood-a": [2500, 7500], "dogwood-b": [2000, 7500], "gallery": [1500, 2500], "ozark": [750, 2250], "front-porch": [750, 2250], "guest-suite": [500, 500]},
-            "2026-03-02": {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
-            "2026-03-03": {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
-            "2026-03-04": {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
-            "2026-03-05": {"dogwood": [4500, 15000], "dogwood-a": [2500, 7500], "dogwood-b": [2000, 7500], "gallery": [1500, 2500], "ozark": [750, 2250], "front-porch": [750, 2250], "guest-suite": [500, 500]},
-            "2026-03-06": {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
-            "2026-03-07": {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
-            "2026-03-08": {"dogwood": [4500, 15000], "dogwood-a": [2500, 7500], "dogwood-b": [2000, 7500], "gallery": [1500, 2500], "ozark": [750, 2250], "front-porch": [750, 2250], "guest-suite": [500, 500]},
-            "2026-03-09": {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
-            "2026-03-10": {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
-            // Continue with the rest of the year... (truncated for space - the code would include all 365 days)
+        // Complete 2026 pricing data built from your two patterns
+        const pricingData = {};
+        
+        // Pattern 1: Lower rates (Jan, Feb, Jul, Aug, Nov, Dec)
+        const lowRatePattern = {
+            // Thursday pattern
+            'thursday': {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
+            // Friday pattern  
+            'friday': {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
+            // Saturday pattern
+            'saturday': {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
+            // Sunday pattern
+            'sunday': {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
+            // Monday pattern
+            'monday': {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
+            // Tuesday pattern - higher rates on some Tuesdays
+            'tuesday': {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
+            // Wednesday pattern - higher rates on some Wednesdays  
+            'wednesday': {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]}
         };
-
-        // For the remaining dates, I'll add them programmatically to keep this manageable
-        const additionalDates = [
-            // Add remaining 2026 data here based on the spreadsheet pattern
-            // This would include all March-December data with exact pricing
-        ];
-
-        // Parse the complete spreadsheet data into the pricing object
-        function loadCompleteData() {
-            // Since the complete data is very large, I'll create it from your spreadsheet structure
-            // March continues the high-rate pattern through June
-            const marchToJuneData = {
-                "2026-03-11": {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
-                "2026-03-12": {"dogwood": [4500, 15000], "dogwood-a": [2500, 7500], "dogwood-b": [2000, 7500], "gallery": [1500, 2500], "ozark": [750, 2250], "front-porch": [750, 2250], "guest-suite": [500, 500]},
-                // Add the pattern for remaining spring dates
-            };
+        
+        // Pattern 2: Peak rates (Mar, Apr, May, Jun, Sep, Oct)
+        const peakRatePattern = {
+            // Thursday pattern
+            'thursday': {"dogwood": [4500, 15000], "dogwood-a": [2500, 7500], "dogwood-b": [2000, 7500], "gallery": [1500, 2500], "ozark": [750, 2250], "front-porch": [750, 2250], "guest-suite": [500, 500]},
+            // Friday pattern
+            'friday': {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
+            // Saturday pattern
+            'saturday': {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
+            // Sunday pattern
+            'sunday': {"dogwood": [4500, 15000], "dogwood-a": [2500, 7500], "dogwood-b": [2000, 7500], "gallery": [1500, 2500], "ozark": [750, 2250], "front-porch": [750, 2250], "guest-suite": [500, 500]},
+            // Monday pattern
+            'monday': {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
+            // Tuesday pattern
+            'tuesday': {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
+            // Wednesday pattern
+            'wednesday': {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]}
+        };
+        
+        // Generate all 365 days of 2026 pricing
+        function generateCompletePricingData() {
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const lowRateMonths = [1, 2, 7, 8, 11, 12]; // Jan, Feb, Jul, Aug, Nov, Dec
+            const peakRateMonths = [3, 4, 5, 6, 9, 10]; // Mar, Apr, May, Jun, Sep, Oct
             
-            // Summer rates (July-August) are lower
-            const summerData = {
-                "2026-07-01": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-                // Continue summer pattern
-            };
+            // Generate pricing for each day of 2026
+            for (let month = 1; month <= 12; month++) {
+                const daysInMonth = new Date(2026, month, 0).getDate();
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(2026, month - 1, day);
+                    const dateStr = `2026-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                    const dayOfWeek = dayNames[date.getDay()];
+                    
+                    // Determine which pattern to use based on month
+                    let pattern;
+                    if (lowRateMonths.includes(month)) {
+                        pattern = lowRatePattern[dayOfWeek];
+                    } else {
+                        pattern = peakRatePattern[dayOfWeek];
+                    }
+                    
+                    // Clone the pattern for this specific date
+                    pricingData[dateStr] = JSON.parse(JSON.stringify(pattern));
+                }
+            }
             
-            // Fall peak season (September-October) returns to high rates
-            const fallData = {
-                "2026-09-09": {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]},
-                // Continue fall pattern
-            };
-            
-            // Merge all data
-            Object.assign(pricingData, marchToJuneData, summerData, fallData);
+            // Apply special date overrides
+            applySpecialDates();
         }
         
-        // Load all the data
-        loadCompleteData();
+        // Apply any special dates that don't follow the standard pattern
+        function applySpecialDates() {
+            // November transition dates - early Nov follows peak rates, later Nov follows low rates
+            pricingData['2026-11-01'] = {"dogwood": [4500, 15000], "dogwood-a": [2500, 7500], "dogwood-b": [2000, 7500], "gallery": [1500, 2500], "ozark": [750, 2250], "front-porch": [750, 2250], "guest-suite": [500, 500]};
+            pricingData['2026-11-02'] = {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]};
+            pricingData['2026-11-03'] = {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]};
+        }
+        
+        // Initialize all pricing data
+        generateCompletePricingData();
 
         // App state
         let eventDays = [];
@@ -540,9 +762,12 @@
         // DOM elements
         const newDateInput = document.getElementById('newDateInput');
         const addDateBtn = document.getElementById('addDateBtn');
+        const addNextBtn = document.getElementById('addNextBtn');
         const eventDaysContainer = document.getElementById('eventDays');
         const calculateBtn = document.getElementById('calculateBtn');
         const results = document.getElementById('results');
+        const roomBlockMatrix = document.getElementById('roomBlockMatrix');
+        const matrixGrid = document.getElementById('matrixGrid');
         
         // Room display names
         const roomNames = {
@@ -565,6 +790,37 @@
             }).format(amount);
         }
         
+        // Get next date
+        function getNextDate(dateStr) {
+            const date = new Date(dateStr + 'T12:00:00');
+            date.setDate(date.getDate() + 1);
+            return date.toISOString().split('T')[0];
+        }
+        
+        // Update add next button
+        function updateAddNextButton() {
+            if (eventDays.length > 0) {
+                const sortedDays = [...eventDays].sort((a, b) => new Date(a.date) - new Date(b.date));
+                const lastDate = sortedDays[sortedDays.length - 1].date;
+                const nextDate = getNextDate(lastDate);
+                
+                // Check if next date is within 2026 and not already added
+                if (nextDate <= '2026-12-31' && !eventDays.find(day => day.date === nextDate)) {
+                    const nextDateObj = new Date(nextDate + 'T12:00:00');
+                    const formattedNext = nextDateObj.toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    addNextBtn.textContent = `+ Add ${formattedNext}`;
+                    addNextBtn.style.display = 'block';
+                } else {
+                    addNextBtn.style.display = 'none';
+                }
+            } else {
+                addNextBtn.style.display = 'none';
+            }
+        }
+        
         // Add event day
         addDateBtn.addEventListener('click', function() {
             const date = newDateInput.value;
@@ -573,6 +829,21 @@
                 return;
             }
             
+            addEventDay(date);
+        });
+        
+        // Add next day
+        addNextBtn.addEventListener('click', function() {
+            if (eventDays.length > 0) {
+                const sortedDays = [...eventDays].sort((a, b) => new Date(a.date) - new Date(b.date));
+                const lastDate = sortedDays[sortedDays.length - 1].date;
+                const nextDate = getNextDate(lastDate);
+                addEventDay(nextDate);
+            }
+        });
+        
+        // Add event day function
+        function addEventDay(date) {
             // Check if date already exists
             if (eventDays.find(day => day.date === date)) {
                 alert('This date is already added to your event');
@@ -581,14 +852,15 @@
             
             // Check if pricing data exists for this date
             if (!pricingData[date]) {
-                alert('Pricing data not available for this date. Please contact us for custom pricing.');
+                alert('Pricing data not available for this date. Please select a date in 2026.');
                 return;
             }
             
             // Add to event days
             eventDays.push({
                 date: date,
-                selectedRoom: null
+                selectedRooms: {},
+                attendeeCounts: {}
             });
             
             // Clear input
@@ -597,7 +869,9 @@
             // Re-render
             renderEventDays();
             updateCalculateButton();
-        });
+            updateAddNextButton();
+            generateRoomBlockMatrix();
+        }
         
         // Render event days
         function renderEventDays() {
@@ -625,10 +899,10 @@
                 });
                 
                 const dayPricing = pricingData[day.date] || {};
-                const isComplete = day.selectedRoom !== null;
+                const hasSelections = Object.keys(day.selectedRooms).some(room => day.selectedRooms[room]);
                 
                 return `
-                    <div class="event-day ${isComplete ? 'complete' : ''}" data-index="${index}">
+                    <div class="event-day ${hasSelections ? 'has-selections' : ''}" data-index="${index}">
                         <div class="day-header">
                             <div class="day-info">
                                 <div class="day-date">${formattedDate}</div>
@@ -640,11 +914,12 @@
                         <div class="room-grid">
                             ${Object.keys(roomNames).map(roomKey => {
                                 const [rental, fnb] = dayPricing[roomKey] || [0, 0];
-                                const isSelected = day.selectedRoom === roomKey;
+                                const isSelected = day.selectedRooms[roomKey] || false;
+                                const attendeeCount = day.attendeeCounts[roomKey] || '';
                                 
                                 return `
-                                    <div class="room-card ${isSelected ? 'selected' : ''}" 
-                                         onclick="selectRoom(${index}, '${roomKey}')">
+                                    <div class="room-card ${isSelected ? 'selected' : ''}" onclick="toggleRoom(${index}, '${roomKey}')">
+                                        <input type="checkbox" class="room-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation();">
                                         <div class="room-name">${roomNames[roomKey]}</div>
                                         <div class="pricing-info">
                                             <div class="pricing-line">
@@ -656,6 +931,12 @@
                                                 <span class="pricing-amount">${formatCurrency(fnb)}</span>
                                             </div>
                                         </div>
+                                        ${isSelected ? `
+                                            <input type="number" class="attendee-input" placeholder="# of attendees" 
+                                                   value="${attendeeCount}" 
+                                                   onclick="event.stopPropagation();"
+                                                   onchange="updateAttendeeCount(${index}, '${roomKey}', this.value)">
+                                        ` : ''}
                                     </div>
                                 `;
                             }).join('')}
@@ -665,48 +946,104 @@
             }).join('');
         }
         
+        // Toggle room selection
+        window.toggleRoom = function(dayIndex, roomKey) {
+            const day = eventDays[dayIndex];
+            day.selectedRooms[roomKey] = !day.selectedRooms[roomKey];
+            
+            if (!day.selectedRooms[roomKey]) {
+                delete day.attendeeCounts[roomKey];
+            }
+            
+            renderEventDays();
+            updateCalculateButton();
+        };
+        
+        // Update attendee count
+        window.updateAttendeeCount = function(dayIndex, roomKey, count) {
+            eventDays[dayIndex].attendeeCounts[roomKey] = count;
+        };
+        
         // Remove event day
         window.removeEventDay = function(index) {
             eventDays.splice(index, 1);
             renderEventDays();
             updateCalculateButton();
+            updateAddNextButton();
+            generateRoomBlockMatrix();
         };
         
-        // Select room for a day
-        window.selectRoom = function(dayIndex, roomKey) {
-            eventDays[dayIndex].selectedRoom = roomKey;
-            renderEventDays();
-            updateCalculateButton();
-        };
+        // Generate room block matrix
+        function generateRoomBlockMatrix() {
+            if (eventDays.length === 0) {
+                matrixGrid.innerHTML = '';
+                return;
+            }
+            
+            const sortedDays = [...eventDays].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            matrixGrid.innerHTML = sortedDays.map(day => {
+                const dateObj = new Date(day.date + 'T12:00:00');
+                const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+                const shortDate = dateObj.toLocaleDateString('en-US', { 
+                    month: 'numeric', 
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                return `
+                    <div class="matrix-column">
+                        <div class="matrix-date-header">
+                            <div>${dayName}</div>
+                            <div class="matrix-day">${shortDate}</div>
+                        </div>
+                        <input type="number" class="matrix-input" placeholder="0" data-date="${day.date}">
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Room block radio handlers
+        document.querySelectorAll('input[name="roomBlock"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'yes') {
+                    roomBlockMatrix.classList.add('show');
+                    generateRoomBlockMatrix();
+                } else {
+                    roomBlockMatrix.classList.remove('show');
+                }
+            });
+        });
         
         // Update calculate button
         function updateCalculateButton() {
-            const completeDays = eventDays.filter(day => day.selectedRoom !== null).length;
+            const daysWithSelections = eventDays.filter(day => 
+                Object.keys(day.selectedRooms).some(room => day.selectedRooms[room])
+            ).length;
             
             if (eventDays.length === 0) {
                 calculateBtn.textContent = 'Add Event Days to Calculate Total';
                 calculateBtn.disabled = true;
-            } else if (completeDays === 0) {
+            } else if (daysWithSelections === 0) {
                 calculateBtn.textContent = 'Select Rooms for Your Event Days';
                 calculateBtn.disabled = true;
-            } else if (completeDays < eventDays.length) {
-                calculateBtn.textContent = `Calculate Quote (${completeDays}/${eventDays.length} days complete)`;
-                calculateBtn.disabled = false;
             } else {
-                calculateBtn.textContent = 'Calculate Complete Event Quote';
+                calculateBtn.textContent = 'Calculate Complete Package Quote';
                 calculateBtn.disabled = false;
             }
         }
         
         // Calculate results
         calculateBtn.addEventListener('click', function() {
-            const completeDays = eventDays.filter(day => day.selectedRoom !== null);
+            const daysWithSelections = eventDays.filter(day => 
+                Object.keys(day.selectedRooms).some(room => day.selectedRooms[room])
+            );
             
-            if (completeDays.length === 0) return;
+            if (daysWithSelections.length === 0) return;
             
-            let grandTotal = 0;
+            let eventSpacesTotal = 0;
             
-            const dayResultsHtml = completeDays.map(day => {
+            const dayResultsHtml = daysWithSelections.map(day => {
                 const dateObj = new Date(day.date + 'T12:00:00');
                 const formattedDate = dateObj.toLocaleDateString('en-US', { 
                     weekday: 'long',
@@ -715,31 +1052,74 @@
                     year: 'numeric' 
                 });
                 
-                const [rental, fnb] = pricingData[day.date][day.selectedRoom];
-                const dayTotal = rental + fnb;
-                grandTotal += dayTotal;
+                let dayTotal = 0;
+                const selectedRooms = Object.keys(day.selectedRooms).filter(room => day.selectedRooms[room]);
+                
+                const roomResultsHtml = selectedRooms.map(roomKey => {
+                    const [rental, fnb] = pricingData[day.date][roomKey];
+                    const attendeeCount = parseInt(day.attendeeCounts[roomKey]) || 0;
+                    const roomTotal = rental + fnb;
+                    dayTotal += roomTotal;
+                    
+                    const perPersonText = attendeeCount > 0 ? `($${Math.round(fnb / attendeeCount)} per person)` : '';
+                    const attendeeText = attendeeCount > 0 ? `${attendeeCount} attendees` : 'Attendee count not specified';
+                    
+                    return `
+                        <div class="room-result">
+                            <div class="room-result-info">
+                                <div class="room-result-name">${roomNames[roomKey]}</div>
+                                <div class="room-result-details">${attendeeText}</div>
+                            </div>
+                            <div class="room-result-pricing">
+                                <div class="room-result-breakdown">Room: ${formatCurrency(rental)} + F&B: ${formatCurrency(fnb)} ${perPersonText}</div>
+                                <div class="room-result-total">${formatCurrency(roomTotal)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                eventSpacesTotal += dayTotal;
                 
                 return `
                     <div class="day-result">
-                        <div class="day-result-info">
-                            <div class="day-result-date">${formattedDate}</div>
-                            <div class="day-result-room">${roomNames[day.selectedRoom]}</div>
-                        </div>
-                        <div class="day-result-pricing">
-                            <div class="pricing-breakdown">Room: ${formatCurrency(rental)} + F&B: ${formatCurrency(fnb)}</div>
-                            <div class="day-total">${formatCurrency(dayTotal)}</div>
-                        </div>
+                        <div class="day-result-header">${formattedDate}</div>
+                        ${roomResultsHtml}
+                        <div class="day-total">Day Total: ${formatCurrency(dayTotal)}</div>
                     </div>
                 `;
             }).join('');
             
             document.getElementById('dayResults').innerHTML = dayResultsHtml;
+            document.getElementById('eventTotal').textContent = formatCurrency(eventSpacesTotal);
+            
+            // Calculate room block total if needed
+            let roomBlockTotal = 0;
+            const needsRoomBlock = document.querySelector('input[name="roomBlock"]:checked').value === 'yes';
+            
+            if (needsRoomBlock) {
+                const adr = parseFloat(document.getElementById('adrInput').value) || 0;
+                const matrixInputs = document.querySelectorAll('.matrix-input');
+                let totalRoomNights = 0;
+                
+                matrixInputs.forEach(input => {
+                    totalRoomNights += parseInt(input.value) || 0;
+                });
+                
+                roomBlockTotal = totalRoomNights * adr;
+                
+                document.getElementById('roomBlockTotal').style.display = 'flex';
+                document.getElementById('roomBlockAmount').textContent = 
+                    `${totalRoomNights} rooms × ${formatCurrency(adr)} = ${formatCurrency(roomBlockTotal)}`;
+            } else {
+                document.getElementById('roomBlockTotal').style.display = 'none';
+            }
+            
+            const grandTotal = eventSpacesTotal + roomBlockTotal;
             document.getElementById('grandTotalAmount').textContent = formatCurrency(grandTotal);
             
             // Update results header
-            const eventDuration = completeDays.length === 1 ? '1-Day Event' : `${completeDays.length}-Day Event`;
-            document.getElementById('resultsTitle').textContent = eventDuration + ' Quote';
-            document.getElementById('resultsSubtitle').textContent = `${completeDays.length} event day${completeDays.length > 1 ? 's' : ''} • ${completeDays.length} space${completeDays.length > 1 ? 's' : ''}`;
+            const eventDuration = daysWithSelections.length === 1 ? '1-Day Event' : `${daysWithSelections.length}-Day Event`;
+            document.getElementById('resultsTitle').textContent = eventDuration + ' Package Quote';
             
             results.classList.add('show');
             results.scrollIntoView({ behavior: 'smooth' });
@@ -748,6 +1128,7 @@
         // Initialize
         renderEventDays();
         updateCalculateButton();
+        updateAddNextButton();
     </script>
 </body>
 </html>
