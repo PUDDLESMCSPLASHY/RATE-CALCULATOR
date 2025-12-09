@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Day Event Space Pricing Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .form-container {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .date-builder {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .date-input-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .date-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .add-date-btn {
+            padding: 12px 20px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .add-date-btn:hover {
+            background: #3b90fe;
+            transform: translateY(-1px);
+        }
+        
+        .event-days {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .event-day {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .event-day.complete {
+            border-color: #4facfe;
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
+        }
+        
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .day-info {
+            flex: 1;
+        }
+        
+        .day-date {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .day-name {
+            font-size: 1em;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .remove-day-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+        
+        .remove-day-btn:hover {
+            background: #ff3742;
+            transform: scale(1.05);
+        }
+        
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .room-card {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            min-height: 120px;
+        }
+        
+        .room-card:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .room-card.selected {
+            border-color: #4facfe;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .room-name {
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .pricing-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 0.95em;
+        }
+        
+        .pricing-line {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .pricing-label {
+            font-weight: 500;
+            opacity: 0.8;
+        }
+        
+        .pricing-amount {
+            font-weight: 700;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+        }
+        
+        .calculate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .calculate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            margin-top: 30px;
+            transform: scale(0);
+            transition: all 0.4s ease;
+        }
+        
+        .results.show {
+            transform: scale(1);
+        }
+        
+        .results-header {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+        }
+        
+        .results-title {
+            font-size: 2em;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .results-subtitle {
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .day-results {
+            background: white;
+            border: 2px solid #84fab0;
+            border-top: none;
+        }
+        
+        .day-result {
+            padding: 25px;
+            border-bottom: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .day-result:last-child {
+            border-bottom: none;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .day-result-info {
+            flex: 1;
+        }
+        
+        .day-result-date {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .day-result-room {
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        .day-result-pricing {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .pricing-breakdown {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .day-total {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .grand-total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .grand-total-amount {
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .grand-total-label {
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .date-input-row {
+                flex-direction: column;
+            }
+            
+            .room-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .day-result {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .day-result-pricing {
+                text-align: left;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏨 Multi-Day Event Pricing Calculator</h1>
+            <p>Build your event day by day with different spaces for each date</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="section">
+                <div class="section-title">
+                    📅 Build Your Event Schedule
+                </div>
+                
+                <div class="date-builder">
+                    <div class="date-input-row">
+                        <input type="date" id="newDateInput" class="date-input" min="2026-01-01" max="2026-12-31" placeholder="Select event date">
+                        <button id="addDateBtn" class="add-date-btn">+ Add Event Day</button>
+                    </div>
+                </div>
+                
+                <div id="eventDays" class="event-days">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <h3>No event days added yet</h3>
+                        <p>Add your first event date above to get started</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" id="calculateBtn" disabled>
+                Add Event Days to Calculate Total
+            </button>
+            
+            <div class="results" id="results">
+                <div class="results-header">
+                    <div class="results-title" id="resultsTitle">Multi-Day Event Quote</div>
+                    <div class="results-subtitle" id="resultsSubtitle">Complete pricing breakdown</div>
+                </div>
+                
+                <div class="day-results" id="dayResults">
+                    <!-- Day results will be inserted here -->
+                </div>
+                
+                <div class="grand-total">
+                    <div class="grand-total-amount" id="grandTotalAmount">$0</div>
+                    <div class="grand-total-label">Total Event Investment</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Pricing data with corrected Gallery pricing
+        const pricingData = {
+            "2026-01-01": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
+            "2026-01-02": {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
+            "2026-01-03": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
+            "2026-03-01": {"dogwood": [4500, 15000], "dogwood-a": [2500, 7500], "dogwood-b": [2000, 7500], "gallery": [1500, 2500], "ozark": [750, 2250], "front-porch": [750, 2250], "guest-suite": [500, 500]},
+            "2026-07-01": {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]}
+        };
+
+        // App state
+        let eventDays = [];
+        
+        // DOM elements
+        const newDateInput = document.getElementById('newDateInput');
+        const addDateBtn = document.getElementById('addDateBtn');
+        const eventDaysContainer = document.getElementById('eventDays');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const results = document.getElementById('results');
+        
+        // Room display names
+        const roomNames = {
+            'dogwood': 'Dogwood',
+            'dogwood-a': 'Dogwood A',
+            'dogwood-b': 'Dogwood B',
+            'gallery': 'The Gallery',
+            'ozark': 'Ozark Room',
+            'front-porch': 'Front Porch',
+            'guest-suite': 'Guest Suite'
+        };
+        
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        // Generate pricing data
+        function generatePricingData() {
+            const basePatterns = {
+                winter: {
+                    "dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], 
+                    "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]
+                },
+                spring: {
+                    "dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], 
+                    "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]
+                },
+                summer: {
+                    "dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], 
+                    "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]
+                },
+                fall: {
+                    "dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], 
+                    "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]
+                }
+            };
+            
+            for (let month = 1; month <= 12; month++) {
+                const daysInMonth = new Date(2026, month, 0).getDate();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dateStr = `2026-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                    
+                    if (!pricingData[dateStr]) {
+                        let pattern;
+                        if (month <= 2 || month === 12) pattern = 'winter';
+                        else if (month >= 3 && month <= 6) pattern = 'spring';
+                        else if (month >= 7 && month <= 8) pattern = 'summer';
+                        else pattern = 'fall';
+                        
+                        const date = new Date(2026, month - 1, day);
+                        const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                        
+                        pricingData[dateStr] = {};
+                        Object.keys(basePatterns[pattern]).forEach(room => {
+                            const [rental, fnb] = basePatterns[pattern][room];
+                            const multiplier = isWeekend && (month === 1 || month === 2 || month === 7 || month === 8 || month >= 11) ? 1.33 : 1;
+                            pricingData[dateStr][room] = [
+                                Math.round(rental * multiplier),
+                                Math.round(fnb * multiplier)
+                            ];
+                        });
+                    }
+                }
+            }
+        }
+        
+        // Initialize pricing data
+        generatePricingData();
+        
+        // Add event day
+        addDateBtn.addEventListener('click', function() {
+            const date = newDateInput.value;
+            if (!date) {
+                alert('Please select a date first');
+                return;
+            }
+            
+            // Check if date already exists
+            if (eventDays.find(day => day.date === date)) {
+                alert('This date is already added to your event');
+                return;
+            }
+            
+            // Add to event days
+            eventDays.push({
+                date: date,
+                selectedRoom: null
+            });
+            
+            // Clear input
+            newDateInput.value = '';
+            
+            // Re-render
+            renderEventDays();
+            updateCalculateButton();
+        });
+        
+        // Render event days
+        function renderEventDays() {
+            if (eventDays.length === 0) {
+                eventDaysContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <h3>No event days added yet</h3>
+                        <p>Add your first event date above to get started</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort days by date
+            eventDays.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            eventDaysContainer.innerHTML = eventDays.map((day, index) => {
+                const dateObj = new Date(day.date + 'T12:00:00');
+                const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+                const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                    month: 'long', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+                
+                const dayPricing = pricingData[day.date] || {};
+                const isComplete = day.selectedRoom !== null;
+                
+                return `
+                    <div class="event-day ${isComplete ? 'complete' : ''}" data-index="${index}">
+                        <div class="day-header">
+                            <div class="day-info">
+                                <div class="day-date">${formattedDate}</div>
+                                <div class="day-name">${dayName}</div>
+                            </div>
+                            <button class="remove-day-btn" onclick="removeEventDay(${index})">× Remove</button>
+                        </div>
+                        
+                        <div class="room-grid">
+                            ${Object.keys(roomNames).map(roomKey => {
+                                const [rental, fnb] = dayPricing[roomKey] || [0, 0];
+                                const isSelected = day.selectedRoom === roomKey;
+                                
+                                return `
+                                    <div class="room-card ${isSelected ? 'selected' : ''}" 
+                                         onclick="selectRoom(${index}, '${roomKey}')">
+                                        <div class="room-name">${roomNames[roomKey]}</div>
+                                        <div class="pricing-info">
+                                            <div class="pricing-line">
+                                                <span class="pricing-label">Room:</span>
+                                                <span class="pricing-amount">${formatCurrency(rental)}</span>
+                                            </div>
+                                            <div class="pricing-line">
+                                                <span class="pricing-label">F&B:</span>
+                                                <span class="pricing-amount">${formatCurrency(fnb)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Remove event day
+        window.removeEventDay = function(index) {
+            eventDays.splice(index, 1);
+            renderEventDays();
+            updateCalculateButton();
+        };
+        
+        // Select room for a day
+        window.selectRoom = function(dayIndex, roomKey) {
+            eventDays[dayIndex].selectedRoom = roomKey;
+            renderEventDays();
+            updateCalculateButton();
+        };
+        
+        // Update calculate button
+        function updateCalculateButton() {
+            const completeDays = eventDays.filter(day => day.selectedRoom !== null).length;
+            
+            if (eventDays.length === 0) {
+                calculateBtn.textContent = 'Add Event Days to Calculate Total';
+                calculateBtn.disabled = true;
+            } else if (completeDays === 0) {
+                calculateBtn.textContent = 'Select Rooms for Your Event Days';
+                calculateBtn.disabled = true;
+            } else if (completeDays < eventDays.length) {
+                calculateBtn.textContent = `Calculate Quote (${completeDays}/${eventDays.length} days complete)`;
+                calculateBtn.disabled = false;
+            } else {
+                calculateBtn.textContent = 'Calculate Complete Event Quote';
+                calculateBtn.disabled = false;
+            }
+        }
+        
+        // Calculate results
+        calculateBtn.addEventListener('click', function() {
+            const completeDays = eventDays.filter(day => day.selectedRoom !== null);
+            
+            if (completeDays.length === 0) return;
+            
+            let grandTotal = 0;
+            
+            const dayResultsHtml = completeDays.map(day => {
+                const dateObj = new Date(day.date + 'T12:00:00');
+                const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                    weekday: 'long',
+                    month: 'long', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+                
+                const [rental, fnb] = pricingData[day.date][day.selectedRoom];
+                const dayTotal = rental + fnb;
+                grandTotal += dayTotal;
+                
+                return `
+                    <div class="day-result">
+                        <div class="day-result-info">
+                            <div class="day-result-date">${formattedDate}</div>
+                            <div class="day-result-room">${roomNames[day.selectedRoom]}</div>
+                        </div>
+                        <div class="day-result-pricing">
+                            <div class="pricing-breakdown">Room: ${formatCurrency(rental)} + F&B: ${formatCurrency(fnb)}</div>
+                            <div class="day-total">${formatCurrency(dayTotal)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('dayResults').innerHTML = dayResultsHtml;
+            document.getElementById('grandTotalAmount').textContent = formatCurrency(grandTotal);
+            
+            // Update results header
+            const eventDuration = completeDays.length === 1 ? '1-Day Event' : `${completeDays.length}-Day Event`;
+            document.getElementById('resultsTitle').textContent = eventDuration + ' Quote';
+            document.getElementById('resultsSubtitle').textContent = `${completeDays.length} event day${completeDays.length > 1 ? 's' : ''} • ${completeDays.length} space${completeDays.length > 1 ? 's' : ''}`;
+            
+            results.classList.add('show');
+            results.scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Initialize
+        renderEventDays();
+        updateCalculateButton();
+    </script>
+</body>
+</html>
