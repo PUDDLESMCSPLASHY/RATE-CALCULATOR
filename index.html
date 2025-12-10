@@ -674,6 +674,11 @@
             font-weight: 700;
         }
         
+        .discount-line {
+            color: #84fab0;
+            font-weight: 600;
+        }
+        
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -829,6 +834,14 @@
                     
                     <div class="final-totals">
                         <div class="total-breakdown">
+                            <span>Event Spaces Subtotal:</span>
+                            <span id="eventSubtotal">$0</span>
+                        </div>
+                        <div id="multidayDiscount" class="total-breakdown discount-line" style="display: none;">
+                            <span>3+ Day Event Discount (25%):</span>
+                            <span id="discountAmount">-$0</span>
+                        </div>
+                        <div class="total-breakdown">
                             <span>Event Spaces Total:</span>
                             <span id="eventTotal">$0</span>
                         </div>
@@ -907,28 +920,28 @@
             }
         });
         
-        // Complete 2026 pricing data built from your two patterns
+        // Complete 2026 pricing data built from your updated patterns
         const pricingData = {};
         
-        // Pattern 1: Lower rates (Jan, Feb, Jul, Aug, Nov, Dec)
+        // Pattern 1: Lower rates (Jan, Feb, Jul, Aug, Nov, Dec) - UPDATED with Friday changes
         const lowRatePattern = {
             // Thursday pattern
             'thursday': {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            // Friday pattern  
-            'friday': {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
+            // Friday pattern - NOW MATCHES WEDNESDAY (peak day in non-peak season)
+            'friday': {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1500, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
             // Saturday pattern
-            'saturday': {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
+            'saturday': {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1500, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
             // Sunday pattern
             'sunday': {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
             // Monday pattern
             'monday': {"dogwood": [2250, 7500], "dogwood-a": [1250, 3750], "dogwood-b": [1000, 3750], "gallery": [750, 1500], "ozark": [375, 1125], "front-porch": [375, 1125], "guest-suite": [250, 250]},
-            // Tuesday pattern - higher rates on some Tuesdays
-            'tuesday': {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
-            // Wednesday pattern - higher rates on some Wednesdays  
-            'wednesday': {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1000, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]}
+            // Tuesday pattern - peak day in non-peak season with updated Dogwood B
+            'tuesday': {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1500, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]},
+            // Wednesday pattern - peak day in non-peak season with updated Dogwood B
+            'wednesday': {"dogwood": [3000, 10000], "dogwood-a": [2000, 5000], "dogwood-b": [1500, 5000], "gallery": [1000, 2500], "ozark": [500, 1500], "front-porch": [500, 1500], "guest-suite": [250, 250]}
         };
         
-        // Pattern 2: Peak rates (Mar, Apr, May, Jun, Sep, Oct)
+        // Pattern 2: Peak rates (Mar, Apr, May, Jun, Sep, Oct) - unchanged
         const peakRatePattern = {
             // Thursday pattern
             'thursday': {"dogwood": [4500, 15000], "dogwood-a": [2500, 7500], "dogwood-b": [2000, 7500], "gallery": [1500, 2500], "ozark": [750, 2250], "front-porch": [750, 2250], "guest-suite": [500, 500]},
@@ -1278,7 +1291,7 @@
             }
         }
         
-        // Calculate results
+        // Calculate results with 3+ day discount
         function calculateResults() {
             const daysWithSelections = eventDays.filter(day => 
                 Object.keys(day.selectedRooms).some(room => day.selectedRooms[room])
@@ -1286,9 +1299,10 @@
             
             if (daysWithSelections.length === 0) return;
             
-            let eventSpacesTotal = 0;
+            let eventSpacesSubtotal = 0;
             const needsRoomBlock = document.querySelector('input[name="roomBlock"]:checked').value === 'yes';
             const adr = parseFloat(document.getElementById('adrInput').value) || 0;
+            const hasMultidayDiscount = daysWithSelections.length >= 3;
             
             // Get room block data by date
             const roomBlockData = {};
@@ -1351,8 +1365,14 @@
                     `;
                 }
                 
-                eventSpacesTotal += dayEventTotal;
-                const dayTotal = dayEventTotal + dayHotelTotal;
+                eventSpacesSubtotal += dayEventTotal;
+                
+                // For day total display, show discounted amount if applicable
+                let displayDayEventTotal = dayEventTotal;
+                if (hasMultidayDiscount) {
+                    displayDayEventTotal = dayEventTotal * 0.75; // 25% discount
+                }
+                const dayTotal = displayDayEventTotal + dayHotelTotal;
                 
                 return `
                     <div class="day-result">
@@ -1365,6 +1385,21 @@
             }).join('');
             
             document.getElementById('dayResults').innerHTML = dayResultsHtml;
+            
+            // Calculate discount and totals
+            const discountAmount = hasMultidayDiscount ? eventSpacesSubtotal * 0.25 : 0;
+            const eventSpacesTotal = eventSpacesSubtotal - discountAmount;
+            
+            // Update display
+            document.getElementById('eventSubtotal').textContent = formatCurrency(eventSpacesSubtotal);
+            
+            if (hasMultidayDiscount) {
+                document.getElementById('multidayDiscount').style.display = 'flex';
+                document.getElementById('discountAmount').textContent = `-${formatCurrency(discountAmount)}`;
+            } else {
+                document.getElementById('multidayDiscount').style.display = 'none';
+            }
+            
             document.getElementById('eventTotal').textContent = formatCurrency(eventSpacesTotal);
             
             // Calculate total room block amount
@@ -1387,7 +1422,10 @@
             document.getElementById('grandTotalAmount').textContent = formatCurrency(grandTotal);
             
             // Update results header
-            const eventDuration = daysWithSelections.length === 1 ? '1-Day Event' : `${daysWithSelections.length}-Day Event`;
+            let eventDuration = daysWithSelections.length === 1 ? '1-Day Event' : `${daysWithSelections.length}-Day Event`;
+            if (hasMultidayDiscount) {
+                eventDuration += ' (25% Discount Applied!)';
+            }
             document.getElementById('resultsTitle').textContent = eventDuration + ' Package Quote';
             
             results.classList.add('show');
