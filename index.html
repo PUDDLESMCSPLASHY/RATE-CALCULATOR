@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Event & Hotel Package Calculator</title>
+    <title>Event Planning System</title>
     <style>
         * {
             margin: 0;
@@ -16,6 +16,120 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+        }
+        
+        .auth-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .auth-icon {
+            font-size: 4em;
+            margin-bottom: 30px;
+            color: #667eea;
+        }
+        
+        .auth-title {
+            font-size: 2em;
+            font-weight: 300;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .auth-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .password-input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .auth-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .auth-error {
+            color: #ff4757;
+            margin-top: 15px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .auth-error.show {
+            opacity: 1;
+        }
+        
+        .main-app {
+            display: none;
+        }
+        
+        .main-app.authenticated {
+            display: block;
+        }
+        
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #333;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .logout-btn:hover {
+            background: white;
+            transform: translateY(-1px);
         }
         
         .container {
@@ -572,6 +686,10 @@
         }
         
         @media (max-width: 768px) {
+            .auth-container {
+                padding: 30px;
+            }
+            
             .date-input-row {
                 flex-direction: column;
             }
@@ -615,94 +733,113 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🏨 Complete Event & Hotel Package Calculator</h1>
-            <p>Build comprehensive event packages with rooms, F&B, and hotel accommodations</p>
+    <!-- Authentication Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-container">
+            <div class="auth-icon">🔐</div>
+            <h1 class="auth-title">Event Planning System</h1>
+            <p class="auth-subtitle">Enter your access code to continue</p>
+            
+            <input type="password" id="passwordInput" class="password-input" placeholder="Enter 4-digit code" maxlength="4">
+            <button onclick="authenticate()" class="auth-button">Access System</button>
+            
+            <div id="authError" class="auth-error">Invalid access code. Please try again.</div>
         </div>
+    </div>
+
+    <!-- Main Application (Hidden until authenticated) -->
+    <div class="main-app" id="mainApp">
+        <button onclick="logout()" class="logout-btn">🚪 Logout</button>
         
-        <div class="form-container">
-            <div class="section">
-                <div class="section-title">
-                    📅 Build Your Event Schedule
-                </div>
-                
-                <div class="date-builder">
-                    <div class="date-input-row">
-                        <input type="date" id="newDateInput" class="date-input" min="2026-01-01" max="2026-12-31" placeholder="Select event date">
-                        <button id="addDateBtn" class="add-date-btn">+ Add Event Day</button>
-                    </div>
-                    <button id="addNextBtn" class="add-next-btn" style="display: none;">+ Add Next Day</button>
-                </div>
-                
-                <div id="eventDays" class="event-days">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📅</div>
-                        <h3>No event days added yet</h3>
-                        <p>Add your first event date above to get started</p>
-                    </div>
-                </div>
+        <div class="container">
+            <div class="header">
+                <h1>🏨 Complete Event & Hotel Package Calculator</h1>
+                <p>Build comprehensive event packages with rooms, F&B, and hotel accommodations</p>
             </div>
             
-            <div class="section">
-                <div class="section-title">
-                    🏨 Room Block Requirements
-                </div>
-                
-                <div class="room-block-section">
-                    <div class="room-block-question">Do you need hotel room blocks for this event?</div>
-                    
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input type="radio" name="roomBlock" value="no" checked>
-                            <span>No, event spaces only</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="roomBlock" value="yes">
-                            <span>Yes, include room blocks</span>
-                        </label>
+            <div class="form-container">
+                <div class="section">
+                    <div class="section-title">
+                        📅 Build Your Event Schedule
                     </div>
                     
-                    <div id="roomBlockMatrix" class="room-block-matrix">
-                        <div class="matrix-header">Enter room block requirements by date:</div>
-                        <div id="matrixGrid" class="matrix-grid">
-                            <!-- Matrix will be generated here -->
+                    <div class="date-builder">
+                        <div class="date-input-row">
+                            <input type="date" id="newDateInput" class="date-input" min="2026-01-01" max="2026-12-31" placeholder="Select event date">
+                            <button id="addDateBtn" class="add-date-btn">+ Add Event Day</button>
                         </div>
-                        <div class="adr-input-group">
-                            <div class="adr-label">ADR (Average Daily Rate):</div>
-                            <input type="number" id="adrInput" class="adr-input" placeholder="0" step="0.01">
-                            <span style="margin-left: 10px; color: #666;">per room per night</span>
+                        <button id="addNextBtn" class="add-next-btn" style="display: none;">+ Add Next Day</button>
+                    </div>
+                    
+                    <div id="eventDays" class="event-days">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📅</div>
+                            <h3>No event days added yet</h3>
+                            <p>Add your first event date above to get started</p>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <button class="calculate-btn" id="calculateBtn" disabled>
-                Add Event Days to Calculate Total
-            </button>
-            
-            <div class="results" id="results">
-                <div class="results-header">
-                    <div class="results-title" id="resultsTitle">Complete Event Package Quote</div>
-                    <div class="results-subtitle" id="resultsSubtitle">Comprehensive pricing breakdown</div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        🏨 Room Block Requirements
+                    </div>
+                    
+                    <div class="room-block-section">
+                        <div class="room-block-question">Do you need hotel room blocks for this event?</div>
+                        
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="roomBlock" value="no" checked>
+                                <span>No, event spaces only</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="roomBlock" value="yes">
+                                <span>Yes, include room blocks</span>
+                            </label>
+                        </div>
+                        
+                        <div id="roomBlockMatrix" class="room-block-matrix">
+                            <div class="matrix-header">Enter room block requirements by date:</div>
+                            <div id="matrixGrid" class="matrix-grid">
+                                <!-- Matrix will be generated here -->
+                            </div>
+                            <div class="adr-input-group">
+                                <div class="adr-label">ADR (Average Daily Rate):</div>
+                                <input type="number" id="adrInput" class="adr-input" placeholder="0" step="0.01">
+                                <span style="margin-left: 10px; color: #666;">per room per night</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="day-results" id="dayResults">
-                    <!-- Day results will be inserted here -->
-                </div>
+                <button class="calculate-btn" id="calculateBtn" disabled>
+                    Add Event Days to Calculate Total
+                </button>
                 
-                <div class="final-totals">
-                    <div class="total-breakdown">
-                        <span>Event Spaces Total:</span>
-                        <span id="eventTotal">$0</span>
+                <div class="results" id="results">
+                    <div class="results-header">
+                        <div class="results-title" id="resultsTitle">Complete Event Package Quote</div>
+                        <div class="results-subtitle" id="resultsSubtitle">Comprehensive pricing breakdown</div>
                     </div>
-                    <div id="roomBlockTotal" class="total-breakdown" style="display: none;">
-                        <span>Room Block Total:</span>
-                        <span id="roomBlockAmount">$0</span>
+                    
+                    <div class="day-results" id="dayResults">
+                        <!-- Day results will be inserted here -->
                     </div>
-                    <div class="total-breakdown">
-                        <span>TOTAL PACKAGE:</span>
-                        <span id="grandTotalAmount">$0</span>
+                    
+                    <div class="final-totals">
+                        <div class="total-breakdown">
+                            <span>Event Spaces Total:</span>
+                            <span id="eventTotal">$0</span>
+                        </div>
+                        <div id="roomBlockTotal" class="total-breakdown" style="display: none;">
+                            <span>Room Block Total:</span>
+                            <span id="roomBlockAmount">$0</span>
+                        </div>
+                        <div class="total-breakdown">
+                            <span>TOTAL PACKAGE:</span>
+                            <span id="grandTotalAmount">$0</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -710,6 +847,66 @@
     </div>
 
     <script>
+        // Valid access codes
+        const validPasswords = ['4250', '4271', '4251', '4859', '4252', '4275', '4272', '4273', '4276', '4277', '4278'];
+        
+        // Check if already authenticated
+        if (sessionStorage.getItem('authenticated') === 'true') {
+            showMainApp();
+        }
+        
+        // Authentication function
+        function authenticate() {
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('authError');
+            
+            if (validPasswords.includes(password)) {
+                sessionStorage.setItem('authenticated', 'true');
+                showMainApp();
+            } else {
+                errorDiv.classList.add('show');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+                
+                // Hide error after 3 seconds
+                setTimeout(() => {
+                    errorDiv.classList.remove('show');
+                }, 3000);
+            }
+        }
+        
+        // Show main application
+        function showMainApp() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('mainApp').classList.add('authenticated');
+            initializeApp();
+        }
+        
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('authenticated');
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('mainApp').classList.remove('authenticated');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('passwordInput').focus();
+            
+            // Reset app state
+            eventDays = [];
+            renderEventDays();
+            updateCalculateButton();
+            updateAddNextButton();
+            
+            // Hide results
+            document.getElementById('results').classList.remove('show');
+        }
+        
+        // Enter key support for password
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                authenticate();
+            }
+        });
+        
         // Complete 2026 pricing data built from your two patterns
         const pricingData = {};
         
@@ -788,22 +985,12 @@
             pricingData['2026-11-02'] = {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]};
             pricingData['2026-11-03'] = {"dogwood": [6000, 20000], "dogwood-a": [3500, 10000], "dogwood-b": [2500, 10000], "gallery": [2000, 4000], "ozark": [1000, 3000], "front-porch": [1000, 3000], "guest-suite": [500, 500]};
         }
-        
-        // Initialize all pricing data
-        generateCompletePricingData();
 
         // App state
         let eventDays = [];
         
-        // DOM elements
-        const newDateInput = document.getElementById('newDateInput');
-        const addDateBtn = document.getElementById('addDateBtn');
-        const addNextBtn = document.getElementById('addNextBtn');
-        const eventDaysContainer = document.getElementById('eventDays');
-        const calculateBtn = document.getElementById('calculateBtn');
-        const results = document.getElementById('results');
-        const roomBlockMatrix = document.getElementById('roomBlockMatrix');
-        const matrixGrid = document.getElementById('matrixGrid');
+        // DOM elements (will be initialized after authentication)
+        let newDateInput, addDateBtn, addNextBtn, eventDaysContainer, calculateBtn, results, roomBlockMatrix, matrixGrid;
         
         // Room display names
         const roomNames = {
@@ -815,6 +1002,61 @@
             'front-porch': 'Front Porch',
             'guest-suite': 'Guest Suite'
         };
+        
+        // Initialize application after authentication
+        function initializeApp() {
+            // Initialize pricing data
+            generateCompletePricingData();
+            
+            // Get DOM elements
+            newDateInput = document.getElementById('newDateInput');
+            addDateBtn = document.getElementById('addDateBtn');
+            addNextBtn = document.getElementById('addNextBtn');
+            eventDaysContainer = document.getElementById('eventDays');
+            calculateBtn = document.getElementById('calculateBtn');
+            results = document.getElementById('results');
+            roomBlockMatrix = document.getElementById('roomBlockMatrix');
+            matrixGrid = document.getElementById('matrixGrid');
+            
+            // Add event listeners
+            addDateBtn.addEventListener('click', function() {
+                const date = newDateInput.value;
+                if (!date) {
+                    alert('Please select a date first');
+                    return;
+                }
+                addEventDay(date);
+            });
+            
+            addNextBtn.addEventListener('click', function() {
+                if (eventDays.length > 0) {
+                    const sortedDays = [...eventDays].sort((a, b) => new Date(a.date) - new Date(b.date));
+                    const lastDate = sortedDays[sortedDays.length - 1].date;
+                    const nextDate = getNextDate(lastDate);
+                    addEventDay(nextDate);
+                }
+            });
+            
+            // Room block radio handlers
+            document.querySelectorAll('input[name="roomBlock"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'yes') {
+                        roomBlockMatrix.classList.add('show');
+                        generateRoomBlockMatrix();
+                    } else {
+                        roomBlockMatrix.classList.remove('show');
+                    }
+                });
+            });
+            
+            // Calculate button
+            calculateBtn.addEventListener('click', calculateResults);
+            
+            // Initialize display
+            renderEventDays();
+            updateCalculateButton();
+            updateAddNextButton();
+        }
         
         // Format currency
         function formatCurrency(amount) {
@@ -856,27 +1098,6 @@
                 addNextBtn.style.display = 'none';
             }
         }
-        
-        // Add event day
-        addDateBtn.addEventListener('click', function() {
-            const date = newDateInput.value;
-            if (!date) {
-                alert('Please select a date first');
-                return;
-            }
-            
-            addEventDay(date);
-        });
-        
-        // Add next day
-        addNextBtn.addEventListener('click', function() {
-            if (eventDays.length > 0) {
-                const sortedDays = [...eventDays].sort((a, b) => new Date(a.date) - new Date(b.date));
-                const lastDate = sortedDays[sortedDays.length - 1].date;
-                const nextDate = getNextDate(lastDate);
-                addEventDay(nextDate);
-            }
-        });
         
         // Add event day function
         function addEventDay(date) {
@@ -1039,18 +1260,6 @@
             }).join('');
         }
         
-        // Room block radio handlers
-        document.querySelectorAll('input[name="roomBlock"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.value === 'yes') {
-                    roomBlockMatrix.classList.add('show');
-                    generateRoomBlockMatrix();
-                } else {
-                    roomBlockMatrix.classList.remove('show');
-                }
-            });
-        });
-        
         // Update calculate button
         function updateCalculateButton() {
             const daysWithSelections = eventDays.filter(day => 
@@ -1070,7 +1279,7 @@
         }
         
         // Calculate results
-        calculateBtn.addEventListener('click', function() {
+        function calculateResults() {
             const daysWithSelections = eventDays.filter(day => 
                 Object.keys(day.selectedRooms).some(room => day.selectedRooms[room])
             );
@@ -1183,12 +1392,10 @@
             
             results.classList.add('show');
             results.scrollIntoView({ behavior: 'smooth' });
-        });
+        }
         
-        // Initialize
-        renderEventDays();
-        updateCalculateButton();
-        updateAddNextButton();
+        // Focus on password input when page loads
+        document.getElementById('passwordInput').focus();
     </script>
 </body>
 </html>
