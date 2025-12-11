@@ -382,6 +382,76 @@
             color: #999;
         }
         
+        .additional-services-section {
+            background: #f0f8ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #4facfe;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .service-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e1e5e9;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .service-item:hover {
+            border-color: #4facfe;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .service-item.selected {
+            border-color: #4facfe;
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
+        }
+        
+        .service-checkbox {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .service-info {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .service-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .service-price {
+            font-weight: 700;
+            color: #4facfe;
+        }
+        
+        .technician-hours {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border: 2px solid #4facfe;
+            border-radius: 5px;
+            width: 100px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
         .room-block-section {
             background: #f8f9fa;
             border-radius: 15px;
@@ -703,6 +773,10 @@
                 grid-template-columns: 1fr;
             }
             
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
             .radio-group {
                 flex-direction: column;
                 gap: 10px;
@@ -787,6 +861,109 @@
                 
                 <div class="section">
                     <div class="section-title">
+                        🎛️ Additional Services
+                    </div>
+                    
+                    <div class="additional-services-section">
+                        <p style="color: #666; margin-bottom: 15px;">Select any additional services needed for your event (optional)</p>
+                        
+                        <div class="services-grid">
+                            <div class="service-item" onclick="toggleService('projector')">
+                                <input type="checkbox" class="service-checkbox" id="projector">
+                                <div class="service-info">
+                                    <span class="service-name">Projector</span>
+                                    <span class="service-price">$350</span>
+                                </div>
+                            </div>
+                            
+                            <div class="service-item" onclick="toggleService('screen')">
+                                <input type="checkbox" class="service-checkbox" id="screen">
+                                <div class="service-info">
+                                    <span class="service-name">Screen</span>
+                                    <span class="service-price">$150</span>
+                                </div>
+                            </div>
+                            
+                            <div class="service-item" onclick="toggleService('speakerSystem')">
+                                <input type="checkbox" class="service-checkbox" id="speakerSystem">
+                                <div class="service-info">
+                                    <span class="service-name">Speaker System</span>
+                                    <span class="service-price">$150</span>
+                                </div>
+                            </div>
+                            
+                            <div class="service-item" onclick="toggleService('portableMonitor')">
+                                <input type="checkbox" class="service-checkbox" id="portableMonitor">
+                                <div class="service-info">
+                                    <span class="service-name">75" Portable Monitor</span>
+                                    <span class="service-price">$300</span>
+                                </div>
+                            </div>
+                            
+                            <div class="service-item" onclick="toggleService('handheldMic')">
+                                <input type="checkbox" class="service-checkbox" id="handheldMic">
+                                <div class="service-info">
+                                    <span class="service-name">Handheld Microphone</span>
+                                    <span class="service-price">$75</span>
+                                </div>
+                            </div>
+                            
+                            <div class="service-item" onclick="toggleService('lavalierMic')">
+                                <input type="checkbox" class="service-checkbox" id="lavalierMic">
+                                <div class="service-info">
+                                    <span class="service-name">Lavalier Microphone</span>
+                                    <span class="service-price">$75</span>
+                                </div>
+                            </div>
+                            
+                            <div class="service-item" onclick="toggleService('podium')">
+                                <input type="checkbox" class="service-checkbox" id="podium">
+                                <div class="service-info">
+                                    <span class="service-name">Podium</span>
+                                    <span class="service-price">$50</span>
+                                </div>
+                            </div>
+                            
+                            <div class="service-item" onclick="toggleService('executiveBlotter')">
+                                <input type="checkbox" class="service-checkbox" id="executiveBlotter">
+                                <div class="service-info">
+                                    <span class="service-name">Executive Blotter</span>
+                                    <span class="service-price">$25</span>
+                                </div>
+                            </div>
+                            
+                            <div class="service-item" onclick="toggleService('avTechnician')">
+                                <input type="checkbox" class="service-checkbox" id="avTechnician">
+                                <div class="service-info">
+                                    <div>
+                                        <div class="service-name">AV Technician</div>
+                                        <input type="number" id="technicianHours" class="technician-hours" placeholder="Hours" min="1" style="display: none;" onclick="event.stopPropagation();">
+                                    </div>
+                                    <span class="service-price">$150/hr</span>
+                                </div>
+                            </div>
+                            
+                            <div class="service-item" onclick="toggleService('chefAttendant')">
+                                <input type="checkbox" class="service-checkbox" id="chefAttendant">
+                                <div class="service-info">
+                                    <span class="service-name">Chef Attendant</span>
+                                    <span class="service-price">$250</span>
+                                </div>
+                            </div>
+                            
+                            <div class="service-item" onclick="toggleService('coatCheckAttendant')">
+                                <input type="checkbox" class="service-checkbox" id="coatCheckAttendant">
+                                <div class="service-info">
+                                    <span class="service-name">Coat Check Attendant</span>
+                                    <span class="service-price">$175</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
                         🏨 Room Block Requirements
                     </div>
                     
@@ -845,6 +1022,10 @@
                             <span>Event Spaces Total:</span>
                             <span id="eventTotal">$0</span>
                         </div>
+                        <div id="additionalServicesTotal" class="total-breakdown" style="display: none;">
+                            <span>Additional Services:</span>
+                            <span id="servicesAmount">$0</span>
+                        </div>
                         <div id="roomBlockTotal" class="total-breakdown" style="display: none;">
                             <span>Room Block Total:</span>
                             <span id="roomBlockAmount">$0</span>
@@ -862,6 +1043,23 @@
     <script>
         // Valid access codes
         const validPasswords = ['4250', '4271', '4251', '4859', '4252', '4275', '4272', '4273', '4276', '4277', '4278'];
+        
+        // Additional services data
+        const additionalServices = {
+            projector: { name: 'Projector', price: 350 },
+            screen: { name: 'Screen', price: 150 },
+            speakerSystem: { name: 'Speaker System', price: 150 },
+            portableMonitor: { name: '75" Portable Monitor', price: 300 },
+            handheldMic: { name: 'Handheld Microphone', price: 75 },
+            lavalierMic: { name: 'Lavalier Microphone', price: 75 },
+            podium: { name: 'Podium', price: 50 },
+            executiveBlotter: { name: 'Executive Blotter', price: 25 },
+            avTechnician: { name: 'AV Technician', price: 150, hourly: true },
+            chefAttendant: { name: 'Chef Attendant', price: 250 },
+            coatCheckAttendant: { name: 'Coat Check Attendant', price: 175 }
+        };
+        
+        let selectedServices = {};
         
         // Check if already authenticated
         if (sessionStorage.getItem('authenticated') === 'true') {
@@ -905,6 +1103,7 @@
             
             // Reset app state
             eventDays = [];
+            selectedServices = {};
             renderEventDays();
             updateCalculateButton();
             updateAddNextButton();
@@ -919,6 +1118,54 @@
                 authenticate();
             }
         });
+        
+        // Toggle service selection
+        function toggleService(serviceId) {
+            const checkbox = document.getElementById(serviceId);
+            const serviceItem = checkbox.closest('.service-item');
+            const hoursInput = document.getElementById('technicianHours');
+            
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                serviceItem.classList.add('selected');
+                selectedServices[serviceId] = true;
+                
+                // Show hours input for AV Technician
+                if (serviceId === 'avTechnician' && hoursInput) {
+                    hoursInput.style.display = 'block';
+                    hoursInput.focus();
+                }
+            } else {
+                serviceItem.classList.remove('selected');
+                delete selectedServices[serviceId];
+                
+                // Hide hours input for AV Technician
+                if (serviceId === 'avTechnician' && hoursInput) {
+                    hoursInput.style.display = 'none';
+                    hoursInput.value = '';
+                }
+            }
+        }
+        
+        // Calculate additional services total
+        function calculateAdditionalServicesTotal() {
+            let total = 0;
+            
+            for (const serviceId in selectedServices) {
+                if (selectedServices[serviceId]) {
+                    const service = additionalServices[serviceId];
+                    if (service.hourly && serviceId === 'avTechnician') {
+                        const hours = parseInt(document.getElementById('technicianHours').value) || 0;
+                        total += service.price * hours;
+                    } else {
+                        total += service.price;
+                    }
+                }
+            }
+            
+            return total;
+        }
         
         // Complete 2026 pricing data built from your updated patterns
         const pricingData = {};
@@ -1291,7 +1538,7 @@
             }
         }
         
-        // Calculate results with 3+ day discount
+        // Calculate results with 3+ day discount and additional services
         function calculateResults() {
             const daysWithSelections = eventDays.filter(day => 
                 Object.keys(day.selectedRooms).some(room => day.selectedRooms[room])
@@ -1303,6 +1550,7 @@
             const needsRoomBlock = document.querySelector('input[name="roomBlock"]:checked').value === 'yes';
             const adr = parseFloat(document.getElementById('adrInput').value) || 0;
             const hasMultidayDiscount = daysWithSelections.length >= 3;
+            const additionalServicesTotal = calculateAdditionalServicesTotal();
             
             // Get room block data by date
             const roomBlockData = {};
@@ -1402,6 +1650,14 @@
             
             document.getElementById('eventTotal').textContent = formatCurrency(eventSpacesTotal);
             
+            // Show additional services if any selected
+            if (additionalServicesTotal > 0) {
+                document.getElementById('additionalServicesTotal').style.display = 'flex';
+                document.getElementById('servicesAmount').textContent = formatCurrency(additionalServicesTotal);
+            } else {
+                document.getElementById('additionalServicesTotal').style.display = 'none';
+            }
+            
             // Calculate total room block amount
             let totalRoomBlockAmount = 0;
             if (needsRoomBlock) {
@@ -1418,7 +1674,7 @@
                 document.getElementById('roomBlockTotal').style.display = 'none';
             }
             
-            const grandTotal = eventSpacesTotal + totalRoomBlockAmount;
+            const grandTotal = eventSpacesTotal + additionalServicesTotal + totalRoomBlockAmount;
             document.getElementById('grandTotalAmount').textContent = formatCurrency(grandTotal);
             
             // Update results header
