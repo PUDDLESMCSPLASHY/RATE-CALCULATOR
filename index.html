@@ -382,6 +382,20 @@
             color: #999;
         }
         
+        .step-section {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.6s ease;
+            transform: translateY(-20px);
+        }
+        
+        .step-section.show {
+            opacity: 1;
+            max-height: 2000px;
+            transform: translateY(0);
+        }
+        
         .additional-services-section {
             background: #f0f8ff;
             border-radius: 15px;
@@ -859,7 +873,7 @@
                     </div>
                 </div>
                 
-                <div class="section">
+                <div class="section step-section" id="additionalServicesSection">
                     <div class="section-title">
                         🎛️ Additional Services
                     </div>
@@ -962,7 +976,7 @@
                     </div>
                 </div>
                 
-                <div class="section">
+                <div class="section step-section" id="roomBlockSection">
                     <div class="section-title">
                         🏨 Room Block Requirements
                     </div>
@@ -1104,6 +1118,7 @@
             // Reset app state
             eventDays = [];
             selectedServices = {};
+            hideStepSections();
             renderEventDays();
             updateCalculateButton();
             updateAddNextButton();
@@ -1118,6 +1133,22 @@
                 authenticate();
             }
         });
+        
+        // Show step sections when first event day is added
+        function showStepSections() {
+            setTimeout(() => {
+                document.getElementById('additionalServicesSection').classList.add('show');
+            }, 300);
+            setTimeout(() => {
+                document.getElementById('roomBlockSection').classList.add('show');
+            }, 600);
+        }
+        
+        // Hide step sections
+        function hideStepSections() {
+            document.getElementById('additionalServicesSection').classList.remove('show');
+            document.getElementById('roomBlockSection').classList.remove('show');
+        }
         
         // Toggle service selection
         function toggleService(serviceId) {
@@ -1380,6 +1411,11 @@
                 attendeeCounts: {}
             });
             
+            // Show step sections if this is the first event day
+            if (eventDays.length === 1) {
+                showStepSections();
+            }
+            
             // Clear input
             newDateInput.value = '';
             
@@ -1484,6 +1520,12 @@
         // Remove event day
         window.removeEventDay = function(index) {
             eventDays.splice(index, 1);
+            
+            // Hide step sections if no event days left
+            if (eventDays.length === 0) {
+                hideStepSections();
+            }
+            
             renderEventDays();
             updateCalculateButton();
             updateAddNextButton();
