@@ -763,6 +763,33 @@
             font-weight: 600;
         }
         
+        .new-quote-btn {
+            margin-top: 25px;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            width: fit-content;
+        }
+        
+        .new-quote-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -1048,6 +1075,10 @@
                             <span>TOTAL PACKAGE:</span>
                             <span id="grandTotalAmount">$0</span>
                         </div>
+                        
+                        <button class="new-quote-btn" id="newQuoteBtn" onclick="startNewQuote()">
+                            🔄 Submit Another Quote
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1116,9 +1147,53 @@
             document.getElementById('passwordInput').focus();
             
             // Reset app state
+            resetAppState();
+        }
+        
+        // Start new quote function
+        function startNewQuote() {
+            resetAppState();
+            // Scroll to top smoothly
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            // Focus on date input after scroll
+            setTimeout(() => {
+                newDateInput.focus();
+            }, 500);
+        }
+        
+        // Reset app state
+        function resetAppState() {
             eventDays = [];
             selectedServices = {};
+            
+            // Hide step sections
             hideStepSections();
+            
+            // Reset room block radio
+            document.querySelector('input[name="roomBlock"][value="no"]').checked = true;
+            document.getElementById('roomBlockMatrix').classList.remove('show');
+            
+            // Clear ADR input
+            if (document.getElementById('adrInput')) {
+                document.getElementById('adrInput').value = '';
+            }
+            
+            // Clear technician hours
+            if (document.getElementById('technicianHours')) {
+                document.getElementById('technicianHours').value = '';
+                document.getElementById('technicianHours').style.display = 'none';
+            }
+            
+            // Reset all service checkboxes
+            document.querySelectorAll('.service-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.closest('.service-item').classList.remove('selected');
+            });
+            
+            // Re-render everything
             renderEventDays();
             updateCalculateButton();
             updateAddNextButton();
